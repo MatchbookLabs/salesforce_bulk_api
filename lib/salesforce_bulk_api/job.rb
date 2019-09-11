@@ -181,10 +181,9 @@ module SalesforceBulkApi
               if batches_ready
                 @batch_ids.each do |batch_id|
                   state.insert(0, batch_statuses[batch_id])
-                  @batch_ids.delete(batch_id)
                 end
+                break
               end
-              break if @batch_ids.empty?
             else
               break
             end
