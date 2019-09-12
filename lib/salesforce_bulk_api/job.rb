@@ -173,6 +173,9 @@ module SalesforceBulkApi
             if job_status && job_status['state'] && job_status['state'][0] == 'Closed'
               batch_statuses = {}
 
+              # ignore nils for now, since alternative is to pointlessly make API calls that never terminate
+              @batch_ids.compact!
+
               batches_ready = @batch_ids.all? do |batch_id|
                 batch_state = batch_statuses[batch_id] = self.check_batch_status(batch_id)
                 batch_state && batch_state['state'] && batch_state['state'][0] && !['Queued', 'InProgress'].include?(batch_state['state'][0])
@@ -181,10 +184,9 @@ module SalesforceBulkApi
               if batches_ready
                 @batch_ids.each do |batch_id|
                   state.insert(0, batch_statuses[batch_id])
-                  @batch_ids.delete(batch_id)
                 end
+                break
               end
-              break if @batch_ids.empty?
             else
               break
             end
